@@ -1,9 +1,11 @@
 package com.sparta.pschedule.dto;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Getter
 @RequiredArgsConstructor
 public class GetScheduleResponse {
     private final Long id;
