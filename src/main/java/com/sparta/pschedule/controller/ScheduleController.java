@@ -8,12 +8,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
+/**
+ * try-catch & wildCard
+ * 문제점 1: 모든 컨트롤러 메서드에 try-catch가 들어가서 코드가 지저분해짐
+ * 문제점 2: <?>를 쓰면 리턴 데이터가 성공 시와 실패 시에 서로 달라져서 클라이언트가 타입을 예측하기 어려움
+ * 해결: @ExceptionHandler 사용
+ */
 @RestController
 @RequiredArgsConstructor
 public class ScheduleController {
     private final ScheduleService service;
-
 
     @PostMapping("/schedules")
     public ResponseEntity<PostScheduleResponse> postSchedule(@RequestBody PostScheduleRequest request) {
@@ -28,19 +34,50 @@ public class ScheduleController {
     }
 
     @GetMapping("/schedules")
-    public ResponseEntity<List<GetScheduleResponse>> getScheduleList() {
-        return ResponseEntity.status(HttpStatus.OK).body(service.findAll());
+    public ResponseEntity<List<GetScheduleResponse>> getScheduleList(@RequestParam(required = false) String author) {
+        List<GetScheduleResponse> responses = service.findAll(author);
+        return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
 
     @RequestMapping(value = "/schedules/{id}", method = {RequestMethod.PUT, RequestMethod.PATCH})
     public ResponseEntity<UpdateScheduleResponse> updateSchedule(@PathVariable Long id, @RequestBody UpdateScheduleRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(service.update(id, request));
+        UpdateScheduleResponse response = service.update(id, request);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/schedules/{id}")
-    public ResponseEntity<Void> deleteSchedule(@PathVariable Long id) {
-        service.delete(id);
+    public ResponseEntity<Void> deleteSchedule(@PathVariable Long id, @RequestBody DeleteScheduleRequest request) {
+        service.delete(id, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+
+    /**
+     * 400: Bad Request
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<BaseErrorResponse> handleBadRequest(IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+    }
+
+    /**
+     * 404: Not Found
+     */
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<BaseErrorResponse> handleNotFound(NoSuchElementException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new BaseErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+    }
+
+    /**
+     * 500: Internal Server Error
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<BaseErrorResponse> handleServerError(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new BaseErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+    }
+
 
 }

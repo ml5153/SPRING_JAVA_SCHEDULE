@@ -7,8 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,10 +37,11 @@ public class ScheduleService {
      * Long은 값이 없으면 null로 초기화하여 명확하게 판단 가능
      * =================================================================================================================
      * Q4) DTO에 @Getter가 없으면 어떻게 될까? (실제 코딩시 겪음...)
-     *  =>
-     *  런타임 에러는 나지 않지만, Jackson 라이브러리가 필드 값을 읽지 못해
-     *  포스트맨 결과에 빈 객체 [{}] 만 나오게 됨.
-     *  따라서 데이터를 주고받는 모든 DTO에는 @Getter를 반드시 붙여야 함!
+     * =>
+     * 런타임 에러는 나지 않지만, Jackson 라이브러리가 필드 값을 읽지 못해
+     * 포스트맨 결과에 빈 객체 [{}] 만 나오게 됨.
+     * 따라서 데이터를 주고받는 모든 DTO에는 @Getter를 반드시 붙여야 함!
+     * =================================================================================================================
      */
 
     private final ScheduleRepository repository;
@@ -67,69 +69,72 @@ public class ScheduleService {
 
     @Transactional(readOnly = true)
     public GetScheduleResponse findById(Long id) {
-        Schedule response = repository.findById(id).orElseThrow(
-                () -> new IllegalStateException("잘못된 id입니다.")
+        Schedule schedule = repository.findById(id).orElseThrow(
+                () -> new NoSuchElementException("조회할 일정이 없습니다.")
         );
         return new GetScheduleResponse(
-                response.getId(),
-                response.getTitle(),
-                response.getContents(),
-                response.getAuthor(),
-                response.getCreatedAt(),
-                response.getModifiedAt()
+                schedule.getId(),
+                schedule.getTitle(),
+                schedule.getContents(),
+                schedule.getAuthor(),
+                schedule.getCreatedAt(),
+                schedule.getModifiedAt()
         );
     }
 
     @Transactional(readOnly = true)
-    public List<GetScheduleResponse> findAll() {
-        List<Schedule> schedules = repository.findAll();
-        List<GetScheduleResponse> dtos = new ArrayList<>();
-
-        for (Schedule schedule : schedules) {
-            GetScheduleResponse dto = new GetScheduleResponse(
-                    schedule.getId(),
-                    schedule.getTitle(),
-                    schedule.getContents(),
-                    schedule.getAuthor(),
-                    schedule.getCreatedAt(),
-                    schedule.getModifiedAt()
-            );
-            dtos.add(dto);
-        }
-        return dtos;
+    public List<GetScheduleResponse> findAll(String author) {
+        List<Schedule> schedules = (author != null)
+                ? repository.findAllByAuthorOrderByModifiedAtDesc(author)
+                : repository.findAllByOrderByModifiedAtDesc();
+        return schedules.stream()
+                .map(schedule -> new GetScheduleResponse(
+                        schedule.getId(),
+                        schedule.getTitle(),
+                        schedule.getContents(),
+                        schedule.getAuthor(),
+                        schedule.getCreatedAt(),
+                        schedule.getModifiedAt()
+                )).collect(Collectors.toList());
+        // .toCollect() <Legacy>: java 16미만
+        // .toList() <Latest>: java 16이상
     }
 
     @Transactional
     public UpdateScheduleResponse update(Long id, UpdateScheduleRequest request) {
-        // db에 접근했다.
-        Schedule response = repository.findById(id).orElseThrow(
-                () -> new IllegalStateException("잘못된 id입니다.")
-        );
-        // response : 영속상태 (Transactional 하고 db에 접근했으면 영속성인 상태)
-        response.update(
-                request.getTitle(),
-                request.getContents(),
-                request.getAuthor(),
-                request.getPassword()
+        Schedule schedule = repository.findById(id).orElseThrow(
+                () -> new NoSuchElementException("수정할 일정이 없습니다.")
         );
 
+        if (!schedule.getPassword().equals(request.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 틀려 수정할 수 없습니다.");
+        }
+
+        schedule.update(
+                request.getTitle(),
+                request.getAuthor()
+        );
         return new UpdateScheduleResponse(
-                response.getId(),
-                response.getTitle(),
-                response.getContents(),
-                response.getAuthor(),
-                response.getCreatedAt(),
-                response.getModifiedAt()
+                schedule.getId(),
+                schedule.getTitle(),
+                schedule.getContents(),
+                schedule.getAuthor(),
+                schedule.getCreatedAt(),
+                schedule.getModifiedAt()
         );
     }
 
     @Transactional
-    public void delete(Long id) {
-        boolean isValid = repository.existsById(id);
-        if (!isValid) {
-            throw new IllegalStateException("잘못된 id입니다.");
+    public void delete(Long id, DeleteScheduleRequest request) {
+        Schedule schedule = repository.findById(id).orElseThrow(
+                () -> new NoSuchElementException("삭제할 일정이 없습니다.")
+        );
+
+        if (!schedule.getPassword().equals(request.getPasswrd())) {
+            throw new IllegalArgumentException("비밀번호가 틀려 삭제할 수 없습니다.");
         }
-        repository.deleteById(id);
+
+        repository.delete(schedule);
     }
 
 }
