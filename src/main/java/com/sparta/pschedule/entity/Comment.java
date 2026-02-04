@@ -7,35 +7,34 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "schedules")
+@Table(name = "comments")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Schedule extends BaseEntity {
+public class Comment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 100, nullable = false)
-    private String title;
+    // FK : 일정 릴레이션의 기본id 값을 참조함
+    private Long scheduleId;
 
     @Column(length = 300)
     private String contents;
 
     @Column(nullable = false)
     private String author;
+
     @Column(nullable = false)
     private String password;
 
-
-    public Schedule(String title, String contents, String author, String password) {
-        this.title = title;
+    public Comment(Long scheduleId, String contents, String author, String password) {
         this.contents = contents;
         this.author = author;
         this.password = password;
     }
 
-    public void update(String title, String author) {
-        this.title = title;
+    public void update(String contents, String author) {
+        this.contents = contents;
         this.author = author;
     }
 }

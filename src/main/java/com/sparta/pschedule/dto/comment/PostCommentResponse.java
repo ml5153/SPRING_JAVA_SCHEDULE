@@ -1,4 +1,4 @@
-package com.sparta.pschedule.dto;
+package com.sparta.pschedule.dto.comment;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -6,13 +6,11 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
-// java 14미만: 기존클래스 + Lombok
-// java 14이상: record (거의 코틀린 'data class' 와 유사해보임)
 @Getter
 @RequiredArgsConstructor
-public class PostScheduleResponse {
+public class PostCommentResponse {
     private final Long id;
-    private final String title;
+    private final Long scheduleId;
     private final String contents;
     private final String author;
     private final LocalDateTime createdAt;

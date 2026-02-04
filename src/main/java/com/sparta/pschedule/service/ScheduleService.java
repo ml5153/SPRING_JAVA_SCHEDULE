@@ -1,6 +1,6 @@
 package com.sparta.pschedule.service;
 
-import com.sparta.pschedule.dto.*;
+import com.sparta.pschedule.dto.schedule.*;
 import com.sparta.pschedule.entity.Schedule;
 import com.sparta.pschedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,21 +49,21 @@ public class ScheduleService {
 
     @Transactional
     public PostScheduleResponse create(PostScheduleRequest request) {
-        Schedule schedule = new Schedule(
+        Schedule newSchedule = new Schedule(
                 request.getTitle(),
                 request.getContents(),
                 request.getAuthor(),
                 request.getPassword()
         );
-        Schedule response = repository.save(schedule);
+        Schedule schedule = repository.save(newSchedule);
 
         return new PostScheduleResponse(
-                response.getId(),
-                response.getTitle(),
-                response.getContents(),
-                response.getAuthor(),
-                response.getCreatedAt(),
-                response.getModifiedAt()
+                schedule.getId(),
+                schedule.getTitle(),
+                schedule.getContents(),
+                schedule.getAuthor(),
+                schedule.getCreatedAt(),
+                schedule.getModifiedAt()
         );
     }
 

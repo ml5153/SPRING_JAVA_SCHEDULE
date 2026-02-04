@@ -1,6 +1,7 @@
 package com.sparta.pschedule.controller;
 
 import com.sparta.pschedule.dto.*;
+import com.sparta.pschedule.dto.schedule.*;
 import com.sparta.pschedule.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
