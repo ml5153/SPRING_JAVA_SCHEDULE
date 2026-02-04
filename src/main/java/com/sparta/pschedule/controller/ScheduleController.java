@@ -1,6 +1,5 @@
 package com.sparta.pschedule.controller;
 
-import com.sparta.pschedule.dto.*;
 import com.sparta.pschedule.dto.schedule.*;
 import com.sparta.pschedule.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
  * try-catch & wildCard
@@ -51,34 +49,5 @@ public class ScheduleController {
         service.delete(id, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
-
-    /**
-     * 400: Bad Request
-     */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<BaseErrorResponse> handleBadRequest(IllegalArgumentException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
-    }
-
-    /**
-     * 404: Not Found
-     */
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<BaseErrorResponse> handleNotFound(NoSuchElementException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new BaseErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()));
-    }
-
-    /**
-     * 500: Internal Server Error
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<BaseErrorResponse> handleServerError(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new BaseErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
-    }
-
 
 }

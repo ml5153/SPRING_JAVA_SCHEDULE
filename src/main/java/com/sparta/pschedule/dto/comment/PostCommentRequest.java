@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 public class PostCommentRequest {
-    private Long scheduleId;
     private String contents;
     private String author;
     private String password;

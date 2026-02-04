@@ -1,7 +1,9 @@
 package com.sparta.pschedule.service;
 
+import com.sparta.pschedule.dto.comment.GetCommentResponse;
 import com.sparta.pschedule.dto.schedule.*;
 import com.sparta.pschedule.entity.Schedule;
+import com.sparta.pschedule.extension.ValidationExtension;
 import com.sparta.pschedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -45,10 +47,15 @@ public class ScheduleService {
      */
 
     private final ScheduleRepository repository;
-
+    private final CommentService commentService;
 
     @Transactional
     public PostScheduleResponse create(PostScheduleRequest request) {
+        ValidationExtension.validate(request.getTitle(), 30, "제목은 필수이며 30자 이내여야 합니다.");
+        ValidationExtension.validate(request.getContents(), 200, "내용은 200자 이내로 입력해주세요.");
+        ValidationExtension.validate(request.getAuthor(), "작성자명은 필수입니다.");
+        ValidationExtension.validate(request.getPassword(), "비밀번호를 입력해주세요.");
+
         Schedule newSchedule = new Schedule(
                 request.getTitle(),
                 request.getContents(),
@@ -72,13 +79,16 @@ public class ScheduleService {
         Schedule schedule = repository.findById(id).orElseThrow(
                 () -> new NoSuchElementException("조회할 일정이 없습니다.")
         );
+
+        List<GetCommentResponse> comments = commentService.findAll(id);
         return new GetScheduleResponse(
                 schedule.getId(),
                 schedule.getTitle(),
                 schedule.getContents(),
                 schedule.getAuthor(),
                 schedule.getCreatedAt(),
-                schedule.getModifiedAt()
+                schedule.getModifiedAt(),
+                comments
         );
     }
 
@@ -88,14 +98,18 @@ public class ScheduleService {
                 ? repository.findAllByAuthorOrderByModifiedAtDesc(author)
                 : repository.findAllByOrderByModifiedAtDesc();
         return schedules.stream()
-                .map(schedule -> new GetScheduleResponse(
-                        schedule.getId(),
-                        schedule.getTitle(),
-                        schedule.getContents(),
-                        schedule.getAuthor(),
-                        schedule.getCreatedAt(),
-                        schedule.getModifiedAt()
-                )).collect(Collectors.toList());
+                .map(schedule -> {
+                    List<GetCommentResponse> comments = commentService.findAll(schedule.getId());
+                    return new GetScheduleResponse(
+                            schedule.getId(),
+                            schedule.getTitle(),
+                            schedule.getContents(),
+                            schedule.getAuthor(),
+                            schedule.getCreatedAt(),
+                            schedule.getModifiedAt(),
+                            comments
+                    );
+                }).collect(Collectors.toList());
         // .toCollect() <Legacy>: java 16미만
         // .toList() <Latest>: java 16이상
     }
@@ -109,6 +123,9 @@ public class ScheduleService {
         if (!schedule.getPassword().equals(request.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 틀려 수정할 수 없습니다.");
         }
+
+        ValidationExtension.validate(request.getTitle(), 30, "제목은 30자 이내여야 합니다.");
+        ValidationExtension.validate(request.getAuthor(), "작성자명은 필수입니다.");
 
         schedule.update(
                 request.getTitle(),

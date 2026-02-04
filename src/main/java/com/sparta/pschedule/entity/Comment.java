@@ -15,7 +15,6 @@ public class Comment extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // FK : 일정 릴레이션의 기본id 값을 참조함
     private Long scheduleId;
 
     @Column(length = 300)
@@ -28,6 +27,7 @@ public class Comment extends BaseEntity {
     private String password;
 
     public Comment(Long scheduleId, String contents, String author, String password) {
+        this.scheduleId = scheduleId;
         this.contents = contents;
         this.author = author;
         this.password = password;

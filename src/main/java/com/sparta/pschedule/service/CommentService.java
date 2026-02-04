@@ -4,12 +4,13 @@ import com.sparta.pschedule.dto.comment.GetCommentResponse;
 import com.sparta.pschedule.dto.comment.PostCommentRequest;
 import com.sparta.pschedule.dto.comment.PostCommentResponse;
 import com.sparta.pschedule.entity.Comment;
+import com.sparta.pschedule.extension.ValidationExtension;
 import com.sparta.pschedule.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.NoSuchElementException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -19,9 +20,11 @@ public class CommentService {
     @Transactional
     public PostCommentResponse create(Long scheduleId, PostCommentRequest request) {
         long commentCount = repository.countByScheduleId(scheduleId);
-        if(commentCount > 10) {
+        if (commentCount > 10) {
             throw new IllegalArgumentException("더이상 댓글을 달 수 없습니다.");
         }
+
+        ValidationExtension.validate(request.getContents(), 100, "댓글 내용은 100자내로 입력해주세요.");
 
         Comment newComment = new Comment(
                 scheduleId,
@@ -40,18 +43,19 @@ public class CommentService {
         );
     }
 
-    @Transactional
-    public GetCommentResponse findById(Long id) {
-        Comment comment = repository.findById(id).orElseThrow(
-                () -> new NoSuchElementException("해당되는 댓글이 없습니다.")
-        );
-        return new GetCommentResponse(
-                comment.getId(),
-                comment.getScheduleId(),
-                comment.getContents(),
-                comment.getAuthor(),
-                comment.getCreatedAt(),
-                comment.getModifiedAt()
-        );
+    @Transactional(readOnly = true)
+    public List<GetCommentResponse> findAll(Long scheduleId) {
+        List<Comment> comments = repository.findAllByScheduleId(scheduleId);
+
+        return comments.stream()
+                .map(comment -> new GetCommentResponse(
+                        comment.getId(),
+                        comment.getScheduleId(),
+                        comment.getContents(),
+                        comment.getAuthor(),
+                        comment.getCreatedAt(),
+                        comment.getModifiedAt()
+                ))
+                .toList();
     }
 }
