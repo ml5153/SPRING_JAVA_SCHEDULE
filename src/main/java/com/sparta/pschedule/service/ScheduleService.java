@@ -147,7 +147,7 @@ public class ScheduleService {
                 () -> new NoSuchElementException("삭제할 일정이 없습니다.")
         );
 
-        if (!schedule.getPassword().equals(request.getPasswrd())) {
+        if (!schedule.getPassword().equals(request.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 틀려 삭제할 수 없습니다.");
         }
 
