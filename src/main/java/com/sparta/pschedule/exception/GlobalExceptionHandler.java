@@ -3,42 +3,27 @@ package com.sparta.pschedule.exception;
 import com.sparta.pschedule.dto.BaseErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.NoSuchElementException;
-
-// 모든 컨트롤러의 예외를 가로챈다.
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
-     * 400: Bad Request (검증 실패 등)
+     * Validation Error
      */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<BaseErrorResponse> handleBadRequest(IllegalArgumentException e) {
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<BaseErrorResponse> handleValidError(MethodArgumentNotValidException e) {
+        String errorMessage = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+                .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), errorMessage));
     }
+
 
     /**
-     * 404: Not Found (데이터 없음)
+     * Custom Error
      */
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<BaseErrorResponse> handleNotFound(NoSuchElementException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new BaseErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()));
-    }
-
-    /**
-     * 500: Internal Server Error (그 외 모든 에러)
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<BaseErrorResponse> handleServerError(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new BaseErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
-    }
-
     @ExceptionHandler(CommonException.class)
     public ResponseEntity<BaseErrorResponse> handleBusinessException(CommonException e) {
         CommonError errorCode = e.getCommonError();
