@@ -1,14 +1,15 @@
 package com.sparta.pschedule.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
 @Table(name = "users")
-public class User {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class User extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,4 +20,13 @@ public class User {
     @Column(length = 300, nullable = false)
     private String email;
 
+    public User(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+
+    public void update(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
 }
