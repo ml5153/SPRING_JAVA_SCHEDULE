@@ -18,7 +18,7 @@ public class PostScheduleRequest {
     private String contents;
 
     @NotBlank(message = "작성자명은 필수 입력 값입니다.")
-    @Size(max = 4, message = "유저명은 4글자 이내여야 합니다.")
+    @Size(max = 4, message = "작성자명은 4글자 이내여야 합니다.")
     private String author;
 
     @NotBlank(message = "비밀번호는 필수 입력 값입니다.")

@@ -64,15 +64,7 @@ public class ScheduleService {
                 request.getPassword()
         );
         Schedule schedule = repository.save(newSchedule);
-
-        return new PostScheduleResponse(
-                schedule.getId(),
-                schedule.getTitle(),
-                schedule.getContents(),
-                schedule.getAuthor(),
-                schedule.getCreatedAt(),
-                schedule.getModifiedAt()
-        );
+        return PostScheduleResponse.from(schedule);
     }
 
     @Transactional(readOnly = true)
@@ -82,15 +74,7 @@ public class ScheduleService {
         );
 
         List<GetCommentResponse> comments = commentService.findAll(id);
-        return new GetScheduleResponse(
-                schedule.getId(),
-                schedule.getTitle(),
-                schedule.getContents(),
-                schedule.getAuthor(),
-                schedule.getCreatedAt(),
-                schedule.getModifiedAt(),
-                comments
-        );
+        return GetScheduleResponse.from(schedule, comments);
     }
 
     @Transactional(readOnly = true)
@@ -101,15 +85,7 @@ public class ScheduleService {
         return schedules.stream()
                 .map(schedule -> {
                     List<GetCommentResponse> comments = commentService.findAll(schedule.getId());
-                    return new GetScheduleResponse(
-                            schedule.getId(),
-                            schedule.getTitle(),
-                            schedule.getContents(),
-                            schedule.getAuthor(),
-                            schedule.getCreatedAt(),
-                            schedule.getModifiedAt(),
-                            comments
-                    );
+                    return GetScheduleResponse.from(schedule, comments);
                 }).collect(Collectors.toList());
         // .toCollect() <Legacy>: java 16미만
         // .toList() <Latest>: java 16이상
