@@ -26,6 +26,9 @@ public class Schedule extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Schedule(String title, String contents, String author, String password) {
         this.title = title;
