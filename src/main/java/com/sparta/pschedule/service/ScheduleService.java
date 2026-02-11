@@ -3,6 +3,8 @@ package com.sparta.pschedule.service;
 import com.sparta.pschedule.dto.comment.GetCommentResponse;
 import com.sparta.pschedule.dto.schedule.*;
 import com.sparta.pschedule.entity.Schedule;
+import com.sparta.pschedule.exception.CommonError;
+import com.sparta.pschedule.exception.CommonException;
 import com.sparta.pschedule.extension.ValidationExtension;
 import com.sparta.pschedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -77,7 +78,7 @@ public class ScheduleService {
     @Transactional(readOnly = true)
     public GetScheduleResponse findById(Long id) {
         Schedule schedule = repository.findById(id).orElseThrow(
-                () -> new NoSuchElementException("조회할 일정이 없습니다.")
+                () -> new CommonException(CommonError.NO_FIND_SCHEDULE)
         );
 
         List<GetCommentResponse> comments = commentService.findAll(id);
@@ -117,11 +118,11 @@ public class ScheduleService {
     @Transactional
     public UpdateScheduleResponse update(Long id, UpdateScheduleRequest request) {
         Schedule schedule = repository.findById(id).orElseThrow(
-                () -> new NoSuchElementException("수정할 일정이 없습니다.")
+                () -> new CommonException(CommonError.NO_UPDATE_SCHEDULE)
         );
 
         if (!schedule.getPassword().equals(request.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 틀려 수정할 수 없습니다.");
+            throw new CommonException(CommonError.INVALID_PASSWORD);
         }
 
         ValidationExtension.validate(request.getTitle(), 30, "제목은 30자 이내여야 합니다.");
@@ -144,11 +145,11 @@ public class ScheduleService {
     @Transactional
     public void delete(Long id, DeleteScheduleRequest request) {
         Schedule schedule = repository.findById(id).orElseThrow(
-                () -> new NoSuchElementException("삭제할 일정이 없습니다.")
+                () -> new CommonException(CommonError.NO_DELETE_SCHEDULE)
         );
 
         if (!schedule.getPassword().equals(request.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 틀려 삭제할 수 없습니다.");
+            throw new CommonException(CommonError.INVALID_PASSWORD);
         }
 
         repository.delete(schedule);

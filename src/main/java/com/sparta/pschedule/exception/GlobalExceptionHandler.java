@@ -38,4 +38,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new BaseErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
     }
+
+    @ExceptionHandler(CommonException.class)
+    public ResponseEntity<BaseErrorResponse> handleBusinessException(CommonException e) {
+        CommonError errorCode = e.getCommonError();
+        return ResponseEntity.status(errorCode.getStatus())
+                .body(new BaseErrorResponse(errorCode.getStatus().value(), errorCode.getMessage()));
+    }
 }
