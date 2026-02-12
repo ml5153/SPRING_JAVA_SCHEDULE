@@ -1,6 +1,6 @@
 package com.sparta.pschedule.dto.schedule;
 
-import com.sparta.pschedule.dto.comment.GetCommentResponse;
+import com.sparta.pschedule.dto.comment.CommentGetResponse;
 import com.sparta.pschedule.entity.Schedule;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +17,9 @@ public class ScheduleGetResponse {
     private final String author;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
-    private final List<GetCommentResponse> comments;
+    private final List<CommentGetResponse> comments;
 
-    public static ScheduleGetResponse from(Schedule schedule, List<GetCommentResponse> comments) {
+    public static ScheduleGetResponse from(Schedule schedule, List<CommentGetResponse> comments) {
         return new ScheduleGetResponse(
                 schedule.getId(),
                 schedule.getTitle(),

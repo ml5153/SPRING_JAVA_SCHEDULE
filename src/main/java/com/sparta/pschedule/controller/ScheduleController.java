@@ -1,11 +1,9 @@
 package com.sparta.pschedule.controller;
 
 import com.sparta.pschedule.dto.schedule.*;
-import com.sparta.pschedule.exception.CommonError;
-import com.sparta.pschedule.exception.CommonException;
+import com.sparta.pschedule.extension.AuthExtension;
 import com.sparta.pschedule.service.ScheduleService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,7 +23,7 @@ public class ScheduleController {
             @Valid @RequestBody ScheduleCreateRequest request,
             HttpServletRequest httpRequest
     ) {
-        Long loginUserId = checkSession(httpRequest);
+        Long loginUserId = AuthExtension.checkSession(httpRequest);
         ScheduleCreateResponse response = service.createSchedule(request, loginUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -35,8 +33,7 @@ public class ScheduleController {
             @PathVariable Long id,
             HttpServletRequest httpRequest
     ) {
-        // 조회의 id비교가 필요할지는 비즈니스에 따라 달라짐
-        checkSession(httpRequest);
+        AuthExtension.checkSession(httpRequest);
         ScheduleGetResponse response = service.findById(id);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -46,8 +43,7 @@ public class ScheduleController {
             @RequestParam(required = false) String author,
             HttpServletRequest httpRequest
     ) {
-        // 조회의 id비교가 필요할지는 비즈니스에 따라 달라짐
-        checkSession(httpRequest);
+        AuthExtension.checkSession(httpRequest);
         List<ScheduleGetResponse> responses = service.findAll(author);
         return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
@@ -58,7 +54,7 @@ public class ScheduleController {
             @Valid @RequestBody ScheduleUpdateRequest request,
             HttpServletRequest httpRequest
     ) {
-        Long loginUserId = checkSession(httpRequest);
+        Long loginUserId = AuthExtension.checkSession(httpRequest);
         ScheduleUpdateResponse response = service.update(id, request, loginUserId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -69,18 +65,10 @@ public class ScheduleController {
             @Valid @RequestBody ScheduleDeleteRequest request,
             HttpServletRequest httpRequest
     ) {
-        Long loginUserId = checkSession(httpRequest);
+        Long loginUserId = AuthExtension.checkSession(httpRequest);
         service.delete(id, request, loginUserId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-
-    private Long checkSession(HttpServletRequest httpRequest) {
-        HttpSession session = httpRequest.getSession(false);
-        if (session == null || session.getAttribute("LOGIN_USER") == null) {
-            throw new CommonException(CommonError.UNAUTHORIZED_ACCESS);
-        }
-        return (Long) session.getAttribute("LOGIN_USER");
-    }
 
 }

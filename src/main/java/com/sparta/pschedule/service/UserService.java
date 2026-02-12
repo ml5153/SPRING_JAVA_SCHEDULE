@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +36,7 @@ public class UserService {
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
         User user = repository.findByEmail(request.getEmail()).orElseThrow(
-                () -> new CommonException(CommonError.NO_FIND_USER)
+                () -> new CommonException(CommonError.NOT_FOUND_USER)
         );
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
@@ -49,7 +48,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public GetUserResponse findById(Long id) {
         User user = repository.findById(id).orElseThrow(
-                () -> new CommonException(CommonError.NO_FIND_USER)
+                () -> new CommonException(CommonError.NOT_FOUND_USER)
         );
         return GetUserResponse.from(user);
     }
@@ -65,7 +64,7 @@ public class UserService {
     @Transactional
     public UpdateUserResponse update(Long id, UpdateUserRequest request) {
         User user = repository.findById(id).orElseThrow(
-                () -> new CommonException(CommonError.NO_UPDATE_USER)
+                () -> new CommonException(CommonError.NOT_UPDATE_USER)
         );
         user.update(request.getName(), request.getName());
         return UpdateUserResponse.from(user);
@@ -74,7 +73,7 @@ public class UserService {
     @Transactional
     public void delete(Long id) {
         if (!repository.existsById(id)) {
-            throw new CommonException(CommonError.NO_DELETE_USER);
+            throw new CommonException(CommonError.NOT_DELETE_USER);
         }
         repository.deleteById(id);
     }

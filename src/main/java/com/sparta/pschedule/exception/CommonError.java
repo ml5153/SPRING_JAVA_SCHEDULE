@@ -7,12 +7,12 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum CommonError {
-    NO_FIND_SCHEDULE(HttpStatus.NOT_FOUND, "조회할 일정이 없습니다."),
-    NO_UPDATE_SCHEDULE(HttpStatus.NOT_FOUND, "수정할 일정이 없습니다."),
-    NO_DELETE_SCHEDULE(HttpStatus.NOT_FOUND, "삭제할 일정이 없습니다."),
-    NO_FIND_USER(HttpStatus.NOT_FOUND, "조회할 유저가 없습니다."),
-    NO_UPDATE_USER(HttpStatus.NOT_FOUND, "수정할 유저가 없습니다."),
-    NO_DELETE_USER(HttpStatus.NOT_FOUND, "삭제할 유저가 없습니다."),
+    NOT_FOUND_SCHEDULE(HttpStatus.NOT_FOUND, "조회할 일정이 없습니다."),
+    NOT_UPDATE_SCHEDULE(HttpStatus.NOT_FOUND, "수정할 일정이 없습니다."),
+    NOT_DELETE_SCHEDULE(HttpStatus.NOT_FOUND, "삭제할 일정이 없습니다."),
+    NOT_FOUND_USER(HttpStatus.NOT_FOUND, "조회할 유저가 없습니다."),
+    NOT_UPDATE_USER(HttpStatus.NOT_FOUND, "수정할 유저가 없습니다."),
+    NOT_DELETE_USER(HttpStatus.NOT_FOUND, "삭제할 유저가 없습니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 틀렸습니다."),
     COMMENT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "더이상 댓글을 달 수 없습니다."),
     UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "접근 권한이 없습니다.")

@@ -1,6 +1,6 @@
 package com.sparta.pschedule.service;
 
-import com.sparta.pschedule.dto.comment.GetCommentResponse;
+import com.sparta.pschedule.dto.comment.CommentGetResponse;
 import com.sparta.pschedule.dto.schedule.*;
 import com.sparta.pschedule.entity.Schedule;
 import com.sparta.pschedule.entity.User;
@@ -50,7 +50,7 @@ public class ScheduleService {
     @Transactional
     public ScheduleCreateResponse createSchedule(ScheduleCreateRequest request, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new CommonException(CommonError.NO_FIND_USER)
+                () -> new CommonException(CommonError.NOT_FOUND_USER)
         );
 
         Schedule newSchedule = new Schedule(
@@ -66,10 +66,10 @@ public class ScheduleService {
     @Transactional(readOnly = true)
     public ScheduleGetResponse findById(Long id) {
         Schedule schedule = scheduleRepository.findById(id).orElseThrow(
-                () -> new CommonException(CommonError.NO_FIND_SCHEDULE)
+                () -> new CommonException(CommonError.NOT_FOUND_SCHEDULE)
         );
 
-        List<GetCommentResponse> comments = commentService.findAll(id);
+        List<CommentGetResponse> comments = commentService.findAll(id);
         return ScheduleGetResponse.from(schedule, comments);
     }
 
@@ -80,7 +80,7 @@ public class ScheduleService {
                 : scheduleRepository.findAllByOrderByModifiedAtDesc();
         return schedules.stream()
                 .map(schedule -> {
-                    List<GetCommentResponse> comments = commentService.findAll(schedule.getId());
+                    List<CommentGetResponse> comments = commentService.findAll(schedule.getId());
                     return ScheduleGetResponse.from(schedule, comments);
                 }).collect(Collectors.toList());
         // .toCollect() <Legacy>: java 16미만
@@ -91,7 +91,7 @@ public class ScheduleService {
     public ScheduleUpdateResponse update(Long id, ScheduleUpdateRequest request, Long loginUserId) {
 
         Schedule schedule = scheduleRepository.findById(id).orElseThrow(
-                () -> new CommonException(CommonError.NO_UPDATE_SCHEDULE)
+                () -> new CommonException(CommonError.NOT_UPDATE_SCHEDULE)
         );
         if (!Objects.equals(schedule.getUser().getId(), loginUserId)) {
             throw new CommonException(CommonError.UNAUTHORIZED_ACCESS);
@@ -114,7 +114,7 @@ public class ScheduleService {
     @Transactional
     public void delete(Long id, ScheduleDeleteRequest request, Long loginUserId) {
         Schedule schedule = scheduleRepository.findById(id).orElseThrow(
-                () -> new CommonException(CommonError.NO_DELETE_SCHEDULE)
+                () -> new CommonException(CommonError.NOT_DELETE_SCHEDULE)
         );
         if (!Objects.equals(schedule.getUser().getId(), loginUserId)) {
             throw new CommonException(CommonError.UNAUTHORIZED_ACCESS);
