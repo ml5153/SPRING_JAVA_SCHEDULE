@@ -10,14 +10,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateUserRequest {
-
-    @NotBlank(message = "유저이름은 필수입니다.")
-    @Size(max = 4, message = "유저명은 4글자 이내입니다.")
-    private String name;
+public class UserLoginRequest {
 
     @NotBlank(message = "이메일은 필수입니다.")
     @Email
     private String email;
 
+    @NotBlank
+    @Size(min = 8, message = "비밀번호는 최소 8글자 이상이어야 합니다.")
+    private String password;
 }

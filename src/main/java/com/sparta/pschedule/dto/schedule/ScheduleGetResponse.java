@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
-public class GetScheduleResponse {
+public class ScheduleGetResponse {
     private final Long id;
     private final String title;
     private final String contents;
@@ -19,8 +19,8 @@ public class GetScheduleResponse {
     private final LocalDateTime modifiedAt;
     private final List<GetCommentResponse> comments;
 
-    public static GetScheduleResponse from(Schedule schedule, List<GetCommentResponse> comments) {
-        return new GetScheduleResponse(
+    public static ScheduleGetResponse from(Schedule schedule, List<GetCommentResponse> comments) {
+        return new ScheduleGetResponse(
                 schedule.getId(),
                 schedule.getTitle(),
                 schedule.getContents(),

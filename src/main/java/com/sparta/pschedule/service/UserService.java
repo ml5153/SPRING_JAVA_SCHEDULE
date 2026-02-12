@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -17,13 +18,28 @@ public class UserService {
 
     private final UserRepository repository;
 
+
     @Transactional
-    public PostUserResponse create(PostUserRequest request) {
+    public UserSignUpResponse signUp(UserSignUpRequest request) {
         User user = repository.save(new User(
                 request.getName(),
-                request.getEmail()
+                request.getEmail(),
+                request.getPassword()
         ));
-        return PostUserResponse.from(user);
+        return UserSignUpResponse.from(user);
+    }
+
+
+    @Transactional
+    public UserLoginResponse login(UserLoginRequest request) {
+        User user = repository.findByEmail(request.getEmail()).orElseThrow(
+                () -> new CommonException(CommonError.NO_FIND_USER)
+        );
+
+        if (!Objects.equals(request.getPassword(), user.getPassword())) {
+            throw new CommonException(CommonError.INVALID_PASSWORD);
+        }
+        return UserLoginResponse.from(user);
     }
 
     @Transactional(readOnly = true)

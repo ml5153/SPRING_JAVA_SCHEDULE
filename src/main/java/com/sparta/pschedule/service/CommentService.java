@@ -6,7 +6,6 @@ import com.sparta.pschedule.dto.comment.PostCommentResponse;
 import com.sparta.pschedule.entity.Comment;
 import com.sparta.pschedule.exception.CommonError;
 import com.sparta.pschedule.exception.CommonException;
-import com.sparta.pschedule.extension.ValidationExtension;
 import com.sparta.pschedule.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,8 +24,6 @@ public class CommentService {
         if (commentCount > 10) {
             throw new CommonException(CommonError.COMMENT_LIMIT_EXCEEDED);
         }
-
-        ValidationExtension.validate(request.getContents(), 100, "댓글 내용은 100자내로 입력해주세요.");
 
         Comment newComment = new Comment(
                 scheduleId,

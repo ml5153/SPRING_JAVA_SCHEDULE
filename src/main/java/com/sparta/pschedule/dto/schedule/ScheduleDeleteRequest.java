@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeleteScheduleRequest {
+public class ScheduleDeleteRequest {
 
     @NotBlank(message = "제를 위해 비밀번호를 입력해주세요.")
     private String password;

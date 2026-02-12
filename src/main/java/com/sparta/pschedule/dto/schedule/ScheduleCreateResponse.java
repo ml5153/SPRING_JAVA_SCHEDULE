@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor
-public class PostScheduleResponse {
+public class ScheduleCreateResponse {
     private final Long id;
     private final String title;
     private final String contents;
@@ -16,8 +16,8 @@ public class PostScheduleResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    public static PostScheduleResponse from(Schedule schedule) {
-        return new PostScheduleResponse(
+    public static ScheduleCreateResponse from(Schedule schedule) {
+        return new ScheduleCreateResponse(
                 schedule.getId(),
                 schedule.getTitle(),
                 schedule.getContents(),

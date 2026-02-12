@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateScheduleRequest {
+public class ScheduleUpdateRequest {
     @NotBlank(message = "제목은 필수 입력 값입니다.")
     @Size(max = 100, message = "제목은 100자 이내여야 합니다.")
     private String title;
