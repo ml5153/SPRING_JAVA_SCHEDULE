@@ -1,5 +1,6 @@
 package com.sparta.pschedule.service;
 
+import com.sparta.pschedule.config.PasswordEncoder;
 import com.sparta.pschedule.dto.user.*;
 import com.sparta.pschedule.entity.User;
 import com.sparta.pschedule.exception.CommonError;
@@ -17,14 +18,17 @@ import java.util.Objects;
 public class UserService {
 
     private final UserRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Transactional
     public UserSignUpResponse signUp(UserSignUpRequest request) {
+        String encodePassword = passwordEncoder.encode(request.getPassword());
+
         User user = repository.save(new User(
                 request.getName(),
                 request.getEmail(),
-                request.getPassword()
+                encodePassword
         ));
         return UserSignUpResponse.from(user);
     }
@@ -36,7 +40,7 @@ public class UserService {
                 () -> new CommonException(CommonError.NO_FIND_USER)
         );
 
-        if (!Objects.equals(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new CommonException(CommonError.INVALID_PASSWORD);
         }
         return UserLoginResponse.from(user);
