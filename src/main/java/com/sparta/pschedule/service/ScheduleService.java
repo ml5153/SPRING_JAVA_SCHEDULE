@@ -112,7 +112,7 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void delete(Long id, ScheduleDeleteRequest request, Long loginUserId) {
+    public void delete(Long id, Long loginUserId) {
         Schedule schedule = scheduleRepository.findById(id).orElseThrow(
                 () -> new CommonException(CommonError.NOT_DELETE_SCHEDULE)
         );

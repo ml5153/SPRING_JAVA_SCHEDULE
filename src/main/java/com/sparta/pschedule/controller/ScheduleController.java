@@ -62,11 +62,10 @@ public class ScheduleController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSchedule(
             @PathVariable Long id,
-            @Valid @RequestBody ScheduleDeleteRequest request,
             HttpServletRequest httpRequest
     ) {
         Long loginUserId = AuthExtension.checkSession(httpRequest);
-        service.delete(id, request, loginUserId);
+        service.delete(id, loginUserId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

@@ -45,7 +45,7 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public List<CommentGetResponse> findAll(Long scheduleId) {
-        List<Comment> comments = commentRepository.findAllByScheduleId(scheduleId);
+        List<Comment> comments = commentRepository.findAllByScheduleIdWithUser(scheduleId);
 
         return comments.stream()
                 .map(comment -> CommentGetResponse.from(comment))
