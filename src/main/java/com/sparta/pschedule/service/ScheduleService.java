@@ -9,6 +9,10 @@ import com.sparta.pschedule.exception.CommonException;
 import com.sparta.pschedule.repository.ScheduleRepository;
 import com.sparta.pschedule.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,26 +69,17 @@ public class ScheduleService {
 
     @Transactional(readOnly = true)
     public ScheduleGetResponse findById(Long id) {
-        Schedule schedule = scheduleRepository.findById(id).orElseThrow(
+        Schedule schedule = scheduleRepository.findByIdWithUser(id).orElseThrow(
                 () -> new CommonException(CommonError.NOT_FOUND_SCHEDULE)
         );
-
         List<CommentGetResponse> comments = commentService.findAll(id);
         return ScheduleGetResponse.from(schedule, comments);
     }
 
     @Transactional(readOnly = true)
-    public List<ScheduleGetResponse> findAll(String author) {
-        List<Schedule> schedules = (author != null)
-                ? scheduleRepository.findAllByAuthorOrderByModifiedAtDesc(author)
-                : scheduleRepository.findAllByOrderByModifiedAtDesc();
-        return schedules.stream()
-                .map(schedule -> {
-                    List<CommentGetResponse> comments = commentService.findAll(schedule.getId());
-                    return ScheduleGetResponse.from(schedule, comments);
-                }).collect(Collectors.toList());
-        // .toCollect() <Legacy>: java 16미만
-        // .toList() <Latest>: java 16이상
+    public Page<SchedulePageResponse> getSchedulePage(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("modifiedAt").descending());
+        return scheduleRepository.findAllWithCommentCount(pageable);
     }
 
     @Transactional
@@ -122,5 +117,4 @@ public class ScheduleService {
 
         scheduleRepository.delete(schedule);
     }
-
 }

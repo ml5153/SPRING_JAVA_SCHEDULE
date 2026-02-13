@@ -6,11 +6,12 @@ import com.sparta.pschedule.service.ScheduleService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -39,13 +40,14 @@ public class ScheduleController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<ScheduleGetResponse>> getSchedules(
-            @RequestParam(required = false) String author,
+    public ResponseEntity<Page<SchedulePageResponse>> getSchedules(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             HttpServletRequest httpRequest
     ) {
         AuthExtension.checkSession(httpRequest);
-        List<ScheduleGetResponse> responses = service.findAll(author);
-        return ResponseEntity.status(HttpStatus.OK).body(responses);
+        Page<SchedulePageResponse> result = service.getSchedulePage(page, size);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @RequestMapping(value = "/{id}", method = {RequestMethod.PUT, RequestMethod.PATCH})
@@ -68,6 +70,7 @@ public class ScheduleController {
         service.delete(id, loginUserId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
 
 
 }
